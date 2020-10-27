@@ -145,7 +145,8 @@ BEGIN TRY
 			BEGIN CATCH
 				SET @msg = 'Error Number ' + CAST(ERROR_NUMBER() AS NVARCHAR(24)) + ', Severity ' 
 				+ CAST(ERROR_SEVERITY() AS NVARCHAR(24)) + ': ' 
-				+ ERROR_MESSAGE()			
+				+ ERROR_MESSAGE()
+				PRINT @msg
 				CONTINUE
 			END CATCH		
 END TRY
