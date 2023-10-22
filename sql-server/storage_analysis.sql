@@ -24,10 +24,10 @@ DECLARE @debug bit = 0
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF OBJECT_ID('tempdb..#storage_metircs') IS NOT NULL
-		DROP TABLE #storage_metircs
+	IF OBJECT_ID('tempdb..#storage_metrics') IS NOT NULL
+		DROP TABLE #storage_metrics
 
-	CREATE TABLE #storage_metircs([db_name] NVARCHAR(128)
+	CREATE TABLE #storage_metrics([db_name] NVARCHAR(128)
 	, [schema_name] NVARCHAR(128)
 	, [table_name] NVARCHAR(128)
 	, [object_id] INT
@@ -52,7 +52,7 @@ BEGIN TRY
 		
 			PRINT '@db_name = ' + @db_name
 
-			SET @sql = 'INSERT #storage_metircs
+			SET @sql = 'INSERT #storage_metrics
 			SELECT [db_name] = ''' + @db_name + ''', [schema_name] = s.name , [table_name] = t.name , t.[object_id], t.create_date, SUM(st.row_count) AS [row_count]
 			FROM [' + @db_name + '].sys.tables t 
 			INNER JOIN [' + @db_name + '].sys.schemas s   ON t.schema_id = s.schema_id
@@ -65,7 +65,7 @@ BEGIN TRY
 
 			IF @result <> 0
 				BEGIN
-					RAISERROR('INSERT #storage_metircs failed', 16, 1)
+					RAISERROR('INSERT #storage_metrics failed', 16, 1)
 					RETURN
 				END
 		END
@@ -142,7 +142,7 @@ BEGIN TRY
 			, sm.object_id
 			, sm.table_created_date
 			from cte_pages p
-			INNER JOIN #storage_metircs sm
+			INNER JOIN #storage_metrics sm
 			ON p.object_id = sm.object_id
 			AND sm.[db_name] = ''' + @db_name + '''
 			LEFT OUTER JOIN extra e ON p.object_id = e.object_id
@@ -236,7 +236,7 @@ BEGIN TRY
 				END	
 		END
 
-	IF @debug = 1 select * from #storage_metircs order by [db_name], [table_name]
+	IF @debug = 1 select * from #storage_metrics order by [db_name], [table_name]
 
 	SELECT *
 	FROM #db_table_index_files
